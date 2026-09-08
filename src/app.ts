@@ -1,8 +1,13 @@
-import { client } from "./config/database.ts";
+import { Application } from "jsr:@oak/oak";
+import userRouter from "./routes/user.routes.ts";
 
-const db = client.db("bus-card"); 
-const cards = db.collection("cards"); 
-const users = db.collection("users");
-const transactions = db.collection("transactions");
+const app = new Application();
+
+app.use(userRouter.routes());
+app.use(userRouter.allowedMethods());
+
+console.log("Servidor rodando em http://localhost:8000");
+
+await app.listen({ port: 8000 });
 
 
