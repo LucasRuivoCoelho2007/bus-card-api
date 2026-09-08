@@ -1,5 +1,8 @@
 import { client } from "./config/database.ts";
 
-const db = client.db(""); // Especificar o nome do banco de dados
-const col = db.collection(""); //Especificar o nome da coleção
+const db = client.db("bus-card"); 
+const cards = db.collection("cards"); 
+const users = db.collection("users");
+const transactions = db.collection("transactions");
+
 
