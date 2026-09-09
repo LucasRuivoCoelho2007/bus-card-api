@@ -9,8 +9,13 @@ export async function createUser(ctx: Context) {
   const user = await userService.create(
     body.name,
     body.email,
+    body.password
   );
 
   ctx.response.status = 201;
-  ctx.response.body = user;
+  ctx.response.body = {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+  };
 }
