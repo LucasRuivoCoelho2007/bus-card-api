@@ -41,3 +41,22 @@ export async function getMe(ctx: Context) {
     email: user.email,
   };
 }
+
+export async function updateMe(ctx: Context) {
+  const userId = ctx.state.userId;
+
+  const body = await ctx.request.body.json();
+
+  const user = await userService.updateMe(
+    userId,
+    body.name,
+    body.email,
+  );
+
+  ctx.response.status = 200;
+  ctx.response.body = {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+  };
+}
