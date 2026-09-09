@@ -18,4 +18,23 @@ export class UserRepository {
       _id: new ObjectId(id),
     });
   }
+
+  async updateMe(
+    id: string,
+    name: string,
+    email: string,
+  ): Promise<IUser | null> {
+    return await users.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          name,
+          email,
+        },
+      },
+      {
+        returnDocument: "after",
+      },
+    );
+  }
 }

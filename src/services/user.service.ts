@@ -27,4 +27,23 @@ export class UserService {
   async findById(id: string) {
     return await this.repository.findById(id);
   }
+
+
+async updateMe(
+    id: string,
+    name: string,
+    email: string,
+  ) {
+    const user = await this.repository.findById(id);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return await this.repository.updateMe(
+      id,
+      name,
+      email,
+    );
+  }
 }
