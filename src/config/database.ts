@@ -10,6 +10,11 @@ if (!uri) {
 const client = new MongoClient(uri);
 
 await client.connect();
+
 console.log("Conectado ao MongoDB Atlas");
 
-export { client };   
+const db = client.db("bus-card");
+
+export const users = db.collection("users");
+export const cards = db.collection("cards");
+export const transactions = db.collection("transactions");
