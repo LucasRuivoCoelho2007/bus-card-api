@@ -1,4 +1,4 @@
-import { hashPassword } from "../utils/password.ts";
+import { hashPassword, verifyPassword } from "../utils/password.ts";
 import { User } from "../models/user.ts";
 import { UserRepository } from "../repositories/user.repository.ts";
 
@@ -9,7 +9,11 @@ export class UserService {
     this.repository = new UserRepository();
   }
 
-  async create(name: string, email: string, password: string) {
+  async create(
+    name: string,
+    email: string,
+    password: string,
+  ) {
     const passwordHash = await hashPassword(password);
 
     const user = new User({
@@ -19,5 +23,8 @@ export class UserService {
     });
 
     return await this.repository.create(user);
+  }
+  async findById(id: string) {
+    return await this.repository.findById(id);
   }
 }
