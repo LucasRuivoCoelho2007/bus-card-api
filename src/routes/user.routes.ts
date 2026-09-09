@@ -1,6 +1,6 @@
 import { Router } from "jsr:@oak/oak";
 
-import {createUser,getMe} from "../controllers/user.controller.ts";
+import {createUser,getMe, updateMe} from "../controllers/user.controller.ts";
 
 import { authMiddleware } from "../middlewares/auth.middleware.ts";
 
@@ -12,6 +12,12 @@ router.get(
   "/users/me",
   authMiddleware,
   getMe,
+);
+
+router.put(
+  "/users/me",
+  authMiddleware,
+  updateMe,
 );
 
 export default router;
