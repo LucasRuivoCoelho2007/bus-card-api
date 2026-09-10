@@ -51,3 +51,37 @@ export async function deleteCard(ctx: Context) {
   await cardService.deleteCard(cardId, userId);
   ctx.response.status = 204;
 }
+
+export async function deposit(ctx: Context) {
+  const cardId = ctx.params.id;
+  const userId = ctx.state.userId;
+
+  const body = await ctx.request.body.json();
+  const amount = body.amount;
+
+  await cardService.deposit(
+    cardId,
+    userId,
+    amount,
+  );
+
+  ctx.response.status = 200;
+  ctx.response.body = {
+    message: "Deposit completed successfully",
+  };
+}
+
+export async function charge(ctx: Context) {
+  const cardId = ctx.params.id;
+  const userId = ctx.state.userId;
+
+  await cardService.charge(
+    cardId,
+    userId,
+  );
+
+  ctx.response.status = 200;
+  ctx.response.body = {
+    message: "Charge completed successfully",
+  };
+}

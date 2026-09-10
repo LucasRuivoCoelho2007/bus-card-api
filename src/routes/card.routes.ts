@@ -1,6 +1,6 @@
 import {Router} from "jsr:@oak/oak";
 
-import { createCard, getCards, getCardById, updateCard, deleteCard } from "../controllers/card.controller.ts";
+import { createCard, getCards, getCardById, updateCard, deleteCard, deposit, charge } from "../controllers/card.controller.ts";
 import { authMiddleware } from "../middlewares/auth.middleware.ts";
  
 const router = new Router();
@@ -10,5 +10,9 @@ router.get("/cards", authMiddleware, getCards);
 router.get("/cards/:id", authMiddleware, getCardById);
 router.put("/cards/:id", authMiddleware, updateCard);
 router.delete("/cards/:id", authMiddleware, deleteCard);
+
+//Transaction
+router.post("/cards/:id/deposit", authMiddleware, deposit);
+router.post("/cards/:id/charge", authMiddleware, charge);
 
 export default router;

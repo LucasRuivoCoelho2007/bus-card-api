@@ -1,6 +1,7 @@
 import { cards } from "../config/database.ts";
 import type { ICard } from "../models/card.ts";
 import { ObjectId } from "npm:mongodb";
+import type { ClientSession } from "npm:mongodb";
 
 export class CardRepository {
   async create(card: ICard): Promise<ICard> {
@@ -32,10 +33,45 @@ export class CardRepository {
       user_id: new ObjectId(userId),
     }, { $set: updatedCard });
   }
+
   async deleteCard(cardId: string, userId: string) {
     await cards.deleteOne({
       _id: new ObjectId(cardId),
       user_id: new ObjectId(userId),
     });
+  }
+
+  async deposit(cardId: string, userId: string, amount: number, session: ClientSession) {
+    await cards.updateOne(
+      {
+        _id: new ObjectId(cardId),
+        user_id: new ObjectId(userId),
+      },
+      {
+        $inc: {
+          balance: amount,
+        },
+      },
+      {
+        session,
+      },
+    );
+  }
+
+  async charge(cardId: string, userId: string, amount: number, session: ClientSession) {
+    await cards.updateOne(
+      {
+        _id: new ObjectId(cardId),
+        user_id: new ObjectId(userId),
+      },
+      {
+        $inc: {
+          balance: -amount,
+        },
+      },
+      {
+        session,
+      },
+    );
   }
 }
