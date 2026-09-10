@@ -4,6 +4,7 @@ import healthRouter from "./routes/health.routes.ts";
 import userRouter from "./routes/user.routes.ts";
 import cardRouter from "./routes/card.routes.ts";
 import authRouter from "./routes/auth.routes.ts";
+import transactionRouter from "./routes/transaction.routes.ts";
 
 
 const app = new Application();
@@ -19,6 +20,9 @@ app.use(authRouter.allowedMethods());
 
 app.use(cardRouter.routes());
 app.use(cardRouter.allowedMethods());
+
+app.use(transactionRouter.routes());
+app.use(transactionRouter.allowedMethods());
 
 console.log("Server running on http://localhost:8000");
 
