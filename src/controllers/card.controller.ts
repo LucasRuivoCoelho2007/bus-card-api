@@ -1,87 +1,113 @@
-import type { Context } from "jsr:@oak/oak";
-
+import express from "express";
 import { CardService } from "../services/card.service.ts";
 
 const cardService = new CardService();
 
-export async function createCard(ctx: Context) {
-  const userId = ctx.state.userId;
-  const body = await ctx.request.body.json();
-  
+export async function createCard(
+  req: express.Request,
+  res: express.Response,
+) {
+  const userId = req.userId;
+  const body = req.body;
+
   const card = await cardService.create(
     userId,
     body.type,
   );
 
-  ctx.response.status = 201;
-  ctx.response.body = card;
+  res.status(201).json(card);
 }
 
-export async function getCards(ctx: Context) {
-  const userId = ctx.state.userId;
+export async function getCards(
+  req: express.Request,
+  res: express.Response,
+) {
+  const userId = req.userId;
+
   const cards = await cardService.getCards(userId);
 
-  ctx.response.body = cards;
+  res.status(200).json(cards);
 }
 
-export async function getCardById(ctx: Context) {
-  const cardId = ctx.params.id;
-  const userId = ctx.state.userId;
+export async function getCardById(
+  req: express.Request,
+  res: express.Response,
+) {
+  const cardId = req.params.id;
+  const userId = req.userId;
 
-  const card = await cardService.getCardById(cardId, userId);
-  ctx.response.body = card;
+  const card = await cardService.getCardById(
+    cardId,
+    userId,
+  );
+
+  res.status(200).json(card);
 }
 
-export async function updateCard(ctx: Context) {
-  const cardId = ctx.params.id;
-  const userId = ctx.state.userId;
-  const body = await ctx.request.body.json();
+export async function updateCard(
+  req: express.Request,
+  res: express.Response,
+) {
+  const cardId = req.params.id;
+  const userId = req.userId;
+  const body = req.body;
 
   const card = await cardService.updateCard(
     cardId,
     userId,
     body.type,
-  ); 
-   ctx.response.body = card;
+  );
+
+  res.status(200).json(card);
 }
 
-export async function deleteCard(ctx: Context) {
-  const cardId = ctx.params.id;
-  const userId = ctx.state.userId;
-  await cardService.deleteCard(cardId, userId);
-  ctx.response.status = 204;
+export async function deleteCard(
+  req: express.Request,
+  res: express.Response,
+) {
+  const cardId = req.params.id;
+  const userId = req.userId;
+
+  await cardService.deleteCard(
+    cardId,
+    userId,
+  );
+
+  res.status(204).send();
 }
 
-export async function deposit(ctx: Context) {
-  const cardId = ctx.params.id;
-  const userId = ctx.state.userId;
-
-  const body = await ctx.request.body.json();
-  const amount = body.amount;
+export async function deposit(
+  req: express.Request,
+  res: express.Response,
+) {
+  const cardId = req.params.id;
+  const userId = req.userId;
+  const body = req.body;
 
   await cardService.deposit(
     cardId,
     userId,
-    amount,
+    body.amount,
   );
 
-  ctx.response.status = 200;
-  ctx.response.body = {
+  res.status(200).json({
     message: "Deposit completed successfully",
-  };
+  });
 }
 
-export async function charge(ctx: Context) {
-  const cardId = ctx.params.id;
-  const userId = ctx.state.userId;
+export async function charge(
+  req: express.Request,
+  res: express.Response,
+) {
+  const cardId = req.params.id;
+  const userId = req.userId;
 
   await cardService.charge(
     cardId,
     userId,
   );
 
-  ctx.response.status = 200;
-  ctx.response.body = {
+  res.status(200).json({
     message: "Charge completed successfully",
-  };
+  });
 }

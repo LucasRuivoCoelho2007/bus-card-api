@@ -1,51 +1,56 @@
-import type { Context } from "jsr:@oak/oak";
+import express from "express";
 import { UserService } from "../services/user.service.ts";
 
 const userService = new UserService();
 
-export async function createUser(ctx: Context) {
-  const body = await ctx.request.body.json();
+export async function createUser(
+  req: express.Request,
+  res: express.Response,
+) {
+  const body = req.body;
 
   const user = await userService.create(
     body.name,
     body.email,
-    body.password
+    body.password,
   );
 
-  ctx.response.status = 201;
-  ctx.response.body = {
+  res.status(201).json({
     _id: user._id,
     name: user.name,
     email: user.email,
-  };
-
+  });
 }
 
-export async function getMe(ctx: Context) {
-  const userId = ctx.state.userId;
+export async function getMe(
+  req: express.Request,
+  res: express.Response,
+) {
+  const userId = req.userId;
 
   const user = await userService.findById(userId);
 
   if (!user) {
-    ctx.response.status = 404;
-    ctx.response.body = {
+    res.status(404).json({
       error: "User not found",
-    };
+    });
     return;
   }
 
-  ctx.response.status = 200;
-  ctx.response.body = {
+  res.status(200).json({
     _id: user._id,
     name: user.name,
     email: user.email,
-  };
+  });
 }
 
-export async function updateMe(ctx: Context) {
-  const userId = ctx.state.userId;
+export async function updateMe(
+  req: express.Request,
+  res: express.Response,
+) {
+  const userId = req.userId;
 
-  const body = await ctx.request.body.json();
+  const body = req.body;
 
   const user = await userService.updateMe(
     userId,
@@ -53,10 +58,9 @@ export async function updateMe(ctx: Context) {
     body.email,
   );
 
-  ctx.response.status = 200;
-  ctx.response.body = {
+  res.status(200).json({
     _id: user._id,
     name: user.name,
     email: user.email,
-  };
+  });
 }

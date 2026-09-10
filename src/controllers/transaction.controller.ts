@@ -1,28 +1,26 @@
-import type { Context } from "jsr:@oak/oak";
+import express from "express";
 import { TransactionService } from "../services/transaction.service.ts";
 
 const transactionService = new TransactionService();
 
-export async function getTransactions(ctx: Context) {
-  const userId = ctx.state.userId;
+export async function getTransactions(req: express.Request, res: express.Response) {
+  const userId = req.state.userId;
 
   const transactions = await transactionService.getTransactionsByUser(
     userId,
   );
 
-  ctx.response.status = 200;
-  ctx.response.body = transactions;
+  res.status(200).json(transactions);
 }
 
-export async function getTransactionsByCard(ctx: Context) {
-  const userId = ctx.state.userId;
-  const cardId = ctx.params.cardId;
+export async function getTransactionsByCard(req: express.Request, res: express.Response) {
+  const userId = req.state.userId;
+  const cardId = req.params.cardId;
 
   const transactions = await transactionService.getTransactionsByCard(
     cardId,
     userId,
   );
 
-  ctx.response.status = 200;
-  ctx.response.body = transactions;
+  res.status(200).json(transactions);
 }

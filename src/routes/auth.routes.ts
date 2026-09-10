@@ -1,8 +1,7 @@
-import { Router } from "jsr:@oak/oak";
+import express from 'express';
 import { login } from "../controllers/auth.controller.ts";
 
-const router = new Router();
-
+const router = express.Router();
 router.post("/auth/login", login);
 
 export default router;

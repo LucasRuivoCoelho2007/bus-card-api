@@ -1,4 +1,4 @@
-import { Router } from "jsr:@oak/oak";
+import express from "express";
 
 import {
   getTransactions,
@@ -7,7 +7,7 @@ import {
 
 import { authMiddleware } from "../middlewares/auth.middleware.ts";
 
-const router = new Router();
+const router = express.Router();
 
 router.get("/transactions", authMiddleware, getTransactions);
 
