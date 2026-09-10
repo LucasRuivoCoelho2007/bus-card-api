@@ -5,6 +5,7 @@ import { CardRepository } from "../repositories/card.repository.ts";
 import { TransactionRepository } from "../repositories/transaction.repository.ts";
 import { Transaction } from "../models/transaction.ts";
 
+
 export class CardService {
   private repository: CardRepository;
 
@@ -91,6 +92,58 @@ export class CardService {
       const transaction = new Transaction({
         card_id: new ObjectId(cardId),
         amount,
+        date: new Date(),
+        status: "completed",
+      });
+
+      await this.transactionRepository.create(
+        transaction,
+        session,
+      );
+
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
+  }
+
+  //Transaction
+  async charge(cardId: string, userId: string) {
+    const BUS_FARE = 5;
+
+    const card = await this.repository.getCardById(
+      cardId,
+      userId,
+    );
+
+    if (!card) {
+      throw new Error("Card not found");
+    }
+
+    if (card.balance < BUS_FARE) {
+      throw new Error("Insufficient balance");
+    }
+
+    const session = client.startSession();
+
+    try {
+      session.startTransaction();
+
+      // 1. diminuir o saldo
+      await this.repository.charge(
+        cardId,
+        userId,
+        BUS_FARE,
+        session,
+      );
+
+      // 2. criar a transaction
+      const transaction = new Transaction({
+        card_id: new ObjectId(cardId),
+        amount: -BUS_FARE,
         date: new Date(),
         status: "completed",
       });

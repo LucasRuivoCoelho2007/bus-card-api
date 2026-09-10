@@ -70,3 +70,18 @@ export async function deposit(ctx: Context) {
     message: "Deposit completed successfully",
   };
 }
+
+export async function charge(ctx: Context) {
+  const cardId = ctx.params.id;
+  const userId = ctx.state.userId;
+
+  await cardService.charge(
+    cardId,
+    userId,
+  );
+
+  ctx.response.status = 200;
+  ctx.response.body = {
+    message: "Charge completed successfully",
+  };
+}

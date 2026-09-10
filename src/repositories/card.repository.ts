@@ -57,4 +57,21 @@ export class CardRepository {
       },
     );
   }
+
+  async charge(cardId: string, userId: string, amount: number, session: ClientSession) {
+    await cards.updateOne(
+      {
+        _id: new ObjectId(cardId),
+        user_id: new ObjectId(userId),
+      },
+      {
+        $inc: {
+          balance: -amount,
+        },
+      },
+      {
+        session,
+      },
+    );
+  }
 }
