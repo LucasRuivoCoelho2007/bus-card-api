@@ -7,7 +7,7 @@ if (!uri) {
   Deno.exit(1);
 }
 
-const client = new MongoClient(uri);
+export const client = new MongoClient(uri);
 
 await client.connect();
 
