@@ -1,22 +1,15 @@
-import type { Context } from "jsr:@oak/oak";
-
+import express from "express";
 import { AuthService } from "../services/auth.service.ts";
 
 const authService = new AuthService();
 
-export async function login(ctx: Context) {
-  const body = await ctx.request.body.json();
-
-  const user = await authService.login(
-    body.email,
-    body.password,
-  );
+export async function login(req: express.Request, res: express.Response) {
+  const body = req.body;
 
   const result = await authService.login(
     body.email,
     body.password,
-);  
+  );
 
-    ctx.response.status = 200;
-    ctx.response.body = result;
+  res.status(200).json(result);
 }

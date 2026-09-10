@@ -1,4 +1,5 @@
-import { Application } from "jsr:@oak/oak";
+import express from "express";
+import morgan from "morgan";
 
 import healthRouter from "./routes/health.routes.ts";
 import userRouter from "./routes/user.routes.ts";
@@ -6,24 +7,19 @@ import cardRouter from "./routes/card.routes.ts";
 import authRouter from "./routes/auth.routes.ts";
 import transactionRouter from "./routes/transaction.routes.ts";
 
+const app = express();
 
-const app = new Application();
+app.use(express.json());
+app.use(morgan("dev"));
 
-app.use(healthRouter.routes());
-app.use(healthRouter.allowedMethods());
-
-app.use(userRouter.routes());
-app.use(userRouter.allowedMethods());
-
-app.use(authRouter.routes());
-app.use(authRouter.allowedMethods());
-
-app.use(cardRouter.routes());
-app.use(cardRouter.allowedMethods());
-
-app.use(transactionRouter.routes());
-app.use(transactionRouter.allowedMethods());
+app.use(healthRouter);
+app.use(userRouter);
+app.use(authRouter);
+app.use(cardRouter);
+app.use(transactionRouter);
 
 console.log("Server running on http://localhost:8000");
 
-await app.listen({ port: 8000 });
+app.listen(8000, () => {
+  console.log("Server running on http://localhost:8000");
+});

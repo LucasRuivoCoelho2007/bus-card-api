@@ -1,10 +1,10 @@
-import { Router } from "jsr:@oak/oak";
+import express from "express";
 
 import {createUser,getMe, updateMe} from "../controllers/user.controller.ts";
 
 import { authMiddleware } from "../middlewares/auth.middleware.ts";
 
-const router = new Router();
+const router = express.Router();
 
 router.post("/users", createUser);
 

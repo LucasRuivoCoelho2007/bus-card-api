@@ -1,10 +1,9 @@
-import {Router} from "jsr:@oak/oak";
+import express from 'express';
 
 import { createCard, getCards, getCardById, updateCard, deleteCard, deposit, charge } from "../controllers/card.controller.ts";
 import { authMiddleware } from "../middlewares/auth.middleware.ts";
  
-const router = new Router();
-
+const router = express.Router();
 router.post("/cards", authMiddleware, createCard);
 router.get("/cards", authMiddleware, getCards);
 router.get("/cards/:id", authMiddleware, getCardById);

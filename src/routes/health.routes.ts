@@ -1,12 +1,11 @@
-import { Router } from "jsr:@oak/oak";
+import express from "express";
 
-const router = new Router();
+const router = express.Router();
 
-router.get("/health", (ctx) => {
-  ctx.response.status = 200;
-  ctx.response.body = {
+router.get("/health", (req, res) => {
+  res.status(200).json({
     status: "ok",
-  };
+  });
 });
 
 export default router;
