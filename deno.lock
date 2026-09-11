@@ -8,6 +8,8 @@
     "npm:mongodb@*": "7.6.0",
     "npm:morgan@*": "1.12.0",
     "npm:morgan@1": "1.12.0",
+    "npm:request-check@*": "1.6.2",
+    "npm:request-check@latest": "1.6.2",
     "npm:responser@*": "2.5.6",
     "npm:responser@latest": "2.5.6",
     "npm:throwlhos@*": "1.1.0",
@@ -372,6 +374,9 @@
         "unpipe"
       ]
     },
+    "request-check@1.6.2": {
+      "integrity": "sha512-ps2RkFntTI5mT1iQR0KLP2M/ptyiyw4Z6pVfai9uHfQlIxa0NA3MBiNCaQ8+/mK/n3ZOZ1lLfMbLHqjxsDA9Mg=="
+    },
     "responser@2.5.6": {
       "integrity": "sha512-CAf7EE9rty9yIzIcIj7Ukcq9nR+Uj3pFXcDESB1etwIa9S1FdNXhECepmShdbFwlJ8lsX7MDjvvredesGwhMJQ==",
       "dependencies": [
@@ -517,6 +522,7 @@
       "npm:express@5",
       "npm:jose@6",
       "npm:morgan@1",
+      "npm:request-check@latest",
       "npm:responser@latest",
       "npm:throwlhos@latest"
     ]

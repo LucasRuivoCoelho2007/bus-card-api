@@ -3,7 +3,6 @@ import morgan from "npm:morgan";
 import responserModule from "npm:responser";
 import throwlhosModule from "npm:throwlhos";
 
-
 import healthRouter from "./routes/health.routes.ts";
 import userRouter from "./routes/user.routes.ts";
 import cardRouter from "./routes/card.routes.ts";
@@ -24,11 +23,11 @@ app.use(authRouter);
 app.use(cardRouter);
 app.use(transactionRouter);
 
-app.use(errorMiddleware);
-
 app.use((req, res) => {
   res.send_notFound("Route not found");
 });
+
+app.use(errorMiddleware);
 
 app.listen(8000, () => {
   console.log("Server running on http://localhost:8000");
