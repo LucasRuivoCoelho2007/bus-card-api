@@ -34,12 +34,15 @@ export class UserService {
     return await this.repository.findById(id);
   }
 
-  async updateMe(
-    id: string,
-    name: string,
-    email: string,
-  ) {
+  async updateMe(id: string, name: string, email: string) {
     const user = await this.repository.findById(id);
+    const existingUser = await this.repository.findByEmail(email);
+
+    if (existingUser) {
+      throw throwlhosModule.default.err_conflict(
+        "Email already registered",
+      );
+    }
 
     if (!user) {
       throw throwlhosModule.default.err_notFound(

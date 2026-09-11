@@ -1,6 +1,8 @@
 import express from "express";
 import { UserService } from "../services/user.service.ts";
 import requestCheckModule from "npm:request-check";
+import isness from "@zarco/isness";
+import { email, name } from "@zarco/isness";
 
 const userService = new UserService();
 
@@ -10,15 +12,12 @@ export async function createUser(req: express.Request, res: express.Response) {
   const rc = requestCheckModule.default();
 
   rc.addRule("name", {
-    validator: (value) =>
-      typeof value === "string" && value.trim().length >= 2,
-    message: "Name must have at least 2 characters",
+    validator: (value) => name(value),
+    message: "Invalid name",
   });
 
   rc.addRule("email", {
-    validator: (value) =>
-      typeof value === "string" &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    validator: (value) => isness.email(value),
     message: "Invalid email",
   });
 
@@ -82,9 +81,7 @@ export async function updateMe(req: express.Request, res: express.Response) {
   });
 
   rc.addRule("email", {
-    validator: (value) =>
-      typeof value === "string" &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    validator: (value) => isness.email(value),
     message: "Invalid email",
   });
 

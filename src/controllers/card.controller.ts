@@ -1,6 +1,7 @@
 import express from "express";
 import { CardService } from "../services/card.service.ts";
 import requestCheckModule from "npm:request-check";
+import { objectId } from "@zarco/isness";
 
 const cardService = new CardService();
 
@@ -45,6 +46,12 @@ export async function getCardById(req: express.Request, res: express.Response) {
   const cardId = req.params.id;
   const userId = req.userId;
 
+  if (!objectId(cardId)) {
+    res.send_badRequest("Invalid card ID");
+    return;
+  }
+
+
   const card = await cardService.getCardById(
     cardId,
     userId,
@@ -75,6 +82,12 @@ export async function updateCard(req: express.Request, res: express.Response) {
     return;
   }
 
+  if (!objectId(cardId)) {
+    res.send_badRequest("Invalid card ID");
+    return;
+  }
+
+
   const card = await cardService.updateCard(
     cardId,
     userId,
@@ -87,6 +100,12 @@ export async function updateCard(req: express.Request, res: express.Response) {
 export async function deleteCard(req: express.Request, res: express.Response) {
   const cardId = req.params.id;
   const userId = req.userId;
+
+  if (!objectId(cardId)) {
+    res.send_badRequest("Invalid card ID");
+    return;
+  }
+
 
   await cardService.deleteCard(
     cardId,
@@ -132,6 +151,12 @@ export async function deposit(req: express.Request, res: express.Response) {
 export async function charge(req: express.Request, res: express.Response) {
   const cardId = req.params.id;
   const userId = req.userId;
+
+  if (!objectId(cardId)) {
+    res.send_badRequest("Invalid card ID");
+    return;
+  }
+
 
   await cardService.charge(
     cardId,
