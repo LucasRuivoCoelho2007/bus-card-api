@@ -1,6 +1,7 @@
 import { hashPassword, verifyPassword } from "../utils/password.ts";
 import { User } from "../models/user.ts";
 import { UserRepository } from "../repositories/user.repository.ts";
+import throwlhosModule from "npm:throwlhos";
 
 export class UserService {
   private repository: UserRepository;
@@ -9,13 +10,17 @@ export class UserService {
     this.repository = new UserRepository();
   }
 
-  async create(
-    name: string,
-    email: string,
-    password: string,
-  ) {
+  async create(name: string, email: string, password: string) {
     const passwordHash = await hashPassword(password);
 
+    const existingUser = await this.repository.findByEmail(email);
+
+    if (existingUser) {
+      throw throwlhosModule.default.err_conflict(
+        "Email already registered",
+      );
+    }
+    
     const user = new User({
       name,
       email,
@@ -24,12 +29,12 @@ export class UserService {
 
     return await this.repository.create(user);
   }
+
   async findById(id: string) {
     return await this.repository.findById(id);
   }
 
-
-async updateMe(
+  async updateMe(
     id: string,
     name: string,
     email: string,
@@ -37,7 +42,9 @@ async updateMe(
     const user = await this.repository.findById(id);
 
     if (!user) {
-      throw new Error("User not found");
+      throw throwlhosModule.default.err_notFound(
+        "User not found",
+      );
     }
 
     return await this.repository.updateMe(

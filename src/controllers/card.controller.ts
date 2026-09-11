@@ -15,7 +15,7 @@ export async function createCard(
     body.type,
   );
 
-  res.status(201).json(card);
+  res.send_created(card);
 }
 
 export async function getCards(
@@ -26,7 +26,7 @@ export async function getCards(
 
   const cards = await cardService.getCards(userId);
 
-  res.status(200).json(cards);
+  res.send_ok(cards);
 }
 
 export async function getCardById(
@@ -41,7 +41,7 @@ export async function getCardById(
     userId,
   );
 
-  res.status(200).json(card);
+  res.send_ok(card);
 }
 
 export async function updateCard(
@@ -58,7 +58,7 @@ export async function updateCard(
     body.type,
   );
 
-  res.status(200).json(card);
+  res.send_ok(card);
 }
 
 export async function deleteCard(
@@ -73,7 +73,7 @@ export async function deleteCard(
     userId,
   );
 
-  res.status(204).send();
+  res.send_noContent();
 }
 
 export async function deposit(
@@ -90,7 +90,7 @@ export async function deposit(
     body.amount,
   );
 
-  res.status(200).json({
+  res.send_ok({
     message: "Deposit completed successfully",
   });
 }
@@ -107,7 +107,7 @@ export async function charge(
     userId,
   );
 
-  res.status(200).json({
+  res.send_ok({
     message: "Charge completed successfully",
   });
 }

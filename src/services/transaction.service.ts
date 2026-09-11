@@ -1,4 +1,5 @@
 import { TransactionRepository } from "../repositories/transaction.repository.ts";
+import throwlhosModule from "npm:throwlhos";
 
 export class TransactionService {
   private repository: TransactionRepository;
@@ -8,16 +9,18 @@ export class TransactionService {
   }
 
   async getTransactionsByUser(userId: string) {
-    return await this.repository.getTransactionsByUser(userId);
+    const transactions = await this.repository.getTransactionsByUser(userId);
+    if (!transactions || transactions.length === 0) {
+      throw throwlhosModule.default.err_notFound("No transactions found for this user");
+    }
+    return transactions;
   }
 
-  async getTransactionsByCard(
-    cardId: string,
-    userId: string,
-  ) {
-    return await this.repository.getTransactionsByCard(
-      cardId,
-      userId,
-    );
+  async getTransactionsByCard(cardId: string,userId: string) {
+    const transactions = await this.repository.getTransactionsByCard(cardId, userId);
+    if (!transactions || transactions.length === 0) {
+      throw throwlhosModule.default.err_notFound("No transactions found for this card");
+    }
+    return transactions;
   }
 }

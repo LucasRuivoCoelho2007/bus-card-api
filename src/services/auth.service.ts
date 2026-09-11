@@ -1,6 +1,7 @@
 import { verifyPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
 import { UserRepository } from "../repositories/user.repository.ts";
+import throwlhosModule from "npm:throwlhos";
 
 export class AuthService {
   private repository: UserRepository;
@@ -13,7 +14,9 @@ export class AuthService {
     const user = await this.repository.findByEmail(email);
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw throwlhosModule.default.err_unauthorized(
+        "Invalid email or password",
+      );
     }
 
     const passwordIsValid = await verifyPassword(
@@ -22,7 +25,9 @@ export class AuthService {
     );
 
     if (!passwordIsValid) {
-      throw new Error("Invalid email or password");
+      throw throwlhosModule.default.err_unauthorized(
+        "Invalid email or password",
+      );
     }
 
     const token = await generateToken(user._id.toString());

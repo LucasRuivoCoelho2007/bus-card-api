@@ -15,11 +15,12 @@ export async function createUser(
     body.password,
   );
 
-  res.status(201).json({
+  res.send_created({
     _id: user._id,
     name: user.name,
     email: user.email,
   });
+
 }
 
 export async function getMe(
@@ -31,13 +32,11 @@ export async function getMe(
   const user = await userService.findById(userId);
 
   if (!user) {
-    res.status(404).json({
-      error: "User not found",
-    });
+    res.send_notFound("User not found");
     return;
   }
 
-  res.status(200).json({
+  res.send_ok({
     _id: user._id,
     name: user.name,
     email: user.email,
@@ -58,7 +57,7 @@ export async function updateMe(
     body.email,
   );
 
-  res.status(200).json({
+  res.send_ok({
     _id: user._id,
     name: user.name,
     email: user.email,

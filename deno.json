@@ -7,6 +7,8 @@
     "@std/crypto/timing-safe-equal": "jsr:@std/crypto@1/timing-safe-equal",
     "jose": "npm:jose@6",
     "express": "npm:express@5",
-    "morgan": "npm:morgan@1"
+    "morgan": "npm:morgan@1",
+    "responser": "npm:responser@latest",
+    "throwlhos": "npm:throwlhos@latest"
   }
 }

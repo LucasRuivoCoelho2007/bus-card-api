@@ -4,6 +4,7 @@ import { Card } from "../models/card.ts";
 import { CardRepository } from "../repositories/card.repository.ts";
 import { TransactionRepository } from "../repositories/transaction.repository.ts";
 import { Transaction } from "../models/transaction.ts";
+import throwlhosModule from "npm:throwlhos";
 
 
 export class CardService {
@@ -16,10 +17,11 @@ export class CardService {
     this.transactionRepository = new TransactionRepository();
   }
 
-  async create(
-    userId: string,
-    type: string,
-  ) {
+  async create(userId: string, type: string) {
+    if (type !== "student" && type !== "standard") {
+      throw throwlhosModule.default.err_badRequest("Invalid card type, must be 'student' or 'standard'");
+    }
+
     const card = new Card({
       user_id: new ObjectId(userId),
       type,
@@ -35,14 +37,20 @@ export class CardService {
 
   async getCardById(cardId: string, userId: string) {
     const card = await this.repository.getCardById(cardId, userId);
+    if (!card) {
+      throw throwlhosModule.default.err_notFound("Card not found");
+    }
     return card;
   }
 
   async updateCard(cardId: string, userId: string, type: string) {
+     if (type !== "student" && type !== "standard") {
+        throw throwlhosModule.default.err_badRequest("Invalid card type, must be 'student' or 'standard'");
+    }
     const card = await this.repository.getCardById(cardId, userId);
 
     if (!card) {
-      throw new Error("Card not found");
+      throw throwlhosModule.default.err_notFound("Card not found");
     }
 
     await this.repository.updateCard(cardId, userId, { type });
@@ -56,7 +64,7 @@ export class CardService {
     const card = await this.repository.getCardById(cardId, userId);
 
     if (!card) {
-      throw new Error("Card not found");
+      throw throwlhosModule.default.err_notFound("Card not found");
     }
 
     await this.repository.deleteCard(cardId, userId);
@@ -66,13 +74,13 @@ export class CardService {
   //Transaction
   async deposit(cardId: string, userId: string, amount: number) {
     if (amount <= 0) {
-      throw new Error("Amount must be greater than zero");
+      throw throwlhosModule.default.err_badRequest("Amount must be greater than zero");
     }
 
     const card = await this.repository.getCardById(cardId, userId);
 
     if (!card) {
-      throw new Error("Card not found");
+      throw throwlhosModule.default.err_notFound("Card not found");
     }
 
     const session = client.startSession();
@@ -120,11 +128,11 @@ export class CardService {
     );
 
     if (!card) {
-      throw new Error("Card not found");
+      throw throwlhosModule.default.err_notFound("Card not found");
     }
 
     if (card.balance < BUS_FARE) {
-      throw new Error("Insufficient balance");
+      throw throwlhosModule.default.err_badRequest("Insufficient balance");
     }
 
     const session = client.startSession();
@@ -156,7 +164,7 @@ export class CardService {
       await session.commitTransaction();
     } catch (error) {
       await session.abortTransaction();
-      throw error;
+      throw throwlhosModule.default.err_internalServerError("An error occurred while processing the transaction");
     } finally {
       await session.endSession();
     }
