@@ -11,5 +11,5 @@ export async function login(req: express.Request, res: express.Response) {
     body.password,
   );
 
-  res.status(200).json(result);
+  res.send_ok(result);
 }

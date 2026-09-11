@@ -4,17 +4,17 @@ import { TransactionService } from "../services/transaction.service.ts";
 const transactionService = new TransactionService();
 
 export async function getTransactions(req: express.Request, res: express.Response) {
-  const userId = req.state.userId;
+  const userId = req.userId;
 
   const transactions = await transactionService.getTransactionsByUser(
     userId,
   );
 
-  res.status(200).json(transactions);
+  res.send_ok(transactions);
 }
 
 export async function getTransactionsByCard(req: express.Request, res: express.Response) {
-  const userId = req.state.userId;
+  const userId = req.userId;
   const cardId = req.params.cardId;
 
   const transactions = await transactionService.getTransactionsByCard(
@@ -22,5 +22,5 @@ export async function getTransactionsByCard(req: express.Request, res: express.R
     userId,
   );
 
-  res.status(200).json(transactions);
+  res.send_ok(transactions);
 }
