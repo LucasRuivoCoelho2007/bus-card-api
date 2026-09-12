@@ -1,19 +1,21 @@
-import { transactions } from "../config/database.ts";
+import type { ClientSession } from "npm:mongoose";
+import { TransactionModel } from "../models/transaction.ts";
 import type { ITransaction } from "../models/transaction.ts";
-import { ObjectId } from "npm:mongodb";
-import type { ClientSession } from "npm:mongodb";
+import mongoose from "npm:mongoose";
 
 export class TransactionRepository {
-  async create(
+  create(
     transaction: ITransaction,
     session: ClientSession,
-  ): Promise<ITransaction> {
-    await transactions.insertOne(transaction, { session });
-    return transaction;
+  ) {
+    return TransactionModel.create(
+      [transaction],
+      { session },
+    ).then(([createdTransaction]) => createdTransaction);
   }
 
-  async getTransactionsByUser(userId: string) {
-    const userTransactions = await transactions.aggregate([
+  getTransactionsByUser(userId: string) {
+    return TransactionModel.aggregate([
       {
         $lookup: {
           from: "cards",
@@ -27,19 +29,17 @@ export class TransactionRepository {
       },
       {
         $match: {
-          "card.user_id": new ObjectId(userId),
+          "card.user_id": new mongoose.Types.ObjectId(userId),
         },
       },
-    ]).toArray();
-
-    return userTransactions;
+    ]);
   }
 
-  async getTransactionsByCard(
+  getTransactionsByCard(
     cardId: string,
     userId: string,
   ) {
-    const cardTransactions = await transactions.aggregate([
+    return TransactionModel.aggregate([
       {
         $lookup: {
           from: "cards",
@@ -53,12 +53,10 @@ export class TransactionRepository {
       },
       {
         $match: {
-          card_id: new ObjectId(cardId),
-          "card.user_id": new ObjectId(userId),
+          card_id: new mongoose.Types.ObjectId(cardId),
+          "card.user_id": new mongoose.Types.ObjectId(userId),
         },
       },
-    ]).toArray();
-
-    return cardTransactions;
+    ]);
   }
 }
