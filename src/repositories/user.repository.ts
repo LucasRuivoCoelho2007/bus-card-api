@@ -1,31 +1,31 @@
-import { users } from "../config/database.ts";
+import { UserModel } from "../models/user.ts";
 import type { IUser } from "../models/user.ts";
-import { ObjectId } from "npm:mongodb";
+import mongoose from "npm:mongoose";
 
 export class UserRepository {
-  async create(user: IUser): Promise<IUser> {
-    await users.insertOne(user);
-
-    return user;
+  create(user: IUser) {
+    return UserModel.create(user);
   }
 
-  async findByEmail(email: string): Promise<IUser | null> {
-    return await users.findOne({ email });
+  findByEmail(email: string) {
+    return UserModel.findOne({ email });
   }
 
-  async findById(id: string): Promise<IUser | null> {
-    return await users.findOne({
-      _id: new ObjectId(id),
+  findById(id: string) {
+    return UserModel.findOne({
+      _id: new mongoose.Types.ObjectId(id),
     });
   }
 
-  async updateMe(
+  updateMe(
     id: string,
     name: string,
     email: string,
-  ): Promise<IUser | null> {
-    return await users.findOneAndUpdate(
-      { _id: new ObjectId(id) },
+  ) {
+    return UserModel.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(id),
+      },
       {
         $set: {
           name,
@@ -33,7 +33,7 @@ export class UserRepository {
         },
       },
       {
-        returnDocument: "after",
+        new: true,
       },
     );
   }

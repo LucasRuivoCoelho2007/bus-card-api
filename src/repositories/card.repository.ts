@@ -1,51 +1,59 @@
-import { cards } from "../config/database.ts";
+import type { ClientSession } from "npm:mongoose";
+import { CardModel } from "../models/card.ts";
 import type { ICard } from "../models/card.ts";
-import { ObjectId } from "npm:mongodb";
-import type { ClientSession } from "npm:mongodb";
+import mongoose from "npm:mongoose";
 
 export class CardRepository {
-  async create(card: ICard): Promise<ICard> {
-    await cards.insertOne(card);
-
-    return card;
+  create(card: ICard) {
+    return CardModel.create(card);
   }
 
-  async getCards(userId: string) {
-    const userCards = await cards.find({
-      user_id: new ObjectId(userId),
-    }).toArray();
-
-    return userCards;
-  }
-
-  async getCardById(cardId: string, userId: string) {
-    const card = await cards.findOne({
-      _id: new ObjectId(cardId),
-      user_id: new ObjectId(userId),
-    });
-
-    return card;
-  }
-
-  async updateCard(cardId: string, userId: string, updatedCard: Partial<ICard>) {
-    await cards.updateOne({
-      _id: new ObjectId(cardId),
-      user_id: new ObjectId(userId),
-    }, { $set: updatedCard });
-  }
-
-  async deleteCard(cardId: string, userId: string) {
-    await cards.deleteOne({
-      _id: new ObjectId(cardId),
-      user_id: new ObjectId(userId),
+  getCards(userId: string) {
+    return CardModel.find({
+      user_id: new mongoose.Types.ObjectId(userId),
     });
   }
 
-  async deposit(cardId: string, userId: string, amount: number, session: ClientSession) {
-    await cards.updateOne(
+  getCardById(cardId: string, userId: string) {
+    return CardModel.findOne({
+      _id: new mongoose.Types.ObjectId(cardId),
+      user_id: new mongoose.Types.ObjectId(userId),
+    });
+  }
+
+  updateCard(
+    cardId: string,
+    userId: string,
+    updatedCard: Partial<ICard>,
+  ) {
+    return CardModel.updateOne(
       {
-        _id: new ObjectId(cardId),
-        user_id: new ObjectId(userId),
+        _id: new mongoose.Types.ObjectId(cardId),
+        user_id: new mongoose.Types.ObjectId(userId),
+      },
+      {
+        $set: updatedCard,
+      },
+    );
+  }
+
+  deleteCard(cardId: string, userId: string) {
+    return CardModel.deleteOne({
+      _id: new mongoose.Types.ObjectId(cardId),
+      user_id: new mongoose.Types.ObjectId(userId),
+    });
+  }
+
+  deposit(
+    cardId: string,
+    userId: string,
+    amount: number,
+    session: ClientSession,
+  ) {
+    return CardModel.updateOne(
+      {
+        _id: new mongoose.Types.ObjectId(cardId),
+        user_id: new mongoose.Types.ObjectId(userId),
       },
       {
         $inc: {
@@ -58,11 +66,16 @@ export class CardRepository {
     );
   }
 
-  async charge(cardId: string, userId: string, amount: number, session: ClientSession) {
-    await cards.updateOne(
+  charge(
+    cardId: string,
+    userId: string,
+    amount: number,
+    session: ClientSession,
+  ) {
+    return CardModel.updateOne(
       {
-        _id: new ObjectId(cardId),
-        user_id: new ObjectId(userId),
+        _id: new mongoose.Types.ObjectId(cardId),
+        user_id: new mongoose.Types.ObjectId(userId),
       },
       {
         $inc: {

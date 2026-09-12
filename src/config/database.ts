@@ -1,20 +1,20 @@
-import { MongoClient } from "npm:mongodb";
+import mongoose from "npm:mongoose";
 
 const uri = Deno.env.get("ATLAS_URI");
 
 if (!uri) {
-  console.error("ATLAS_URI não definida no .env");
+  throw new Error("ATLAS_URI não definida");
+}
+
+try {
+  await mongoose.connect(uri, {
+    dbName: "bus-card",
+  });
+
+  console.log("Conectado ao MongoDB Atlas");
+} catch (error) {
+  console.error("Erro ao conectar ao MongoDB Atlas:", error);
   Deno.exit(1);
 }
 
-export const client = new MongoClient(uri);
-
-await client.connect();
-
-console.log("Conectado ao MongoDB Atlas");
-
-const db = client.db("bus-card");
-
-export const users = db.collection("users");
-export const cards = db.collection("cards");
-export const transactions = db.collection("transactions");
+export default mongoose;

@@ -1,3 +1,5 @@
+import "./config/database.ts";
+
 import express from "npm:express";
 import morgan from "npm:morgan";
 import responserModule from "npm:responser";
