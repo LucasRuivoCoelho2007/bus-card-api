@@ -1,15 +1,18 @@
 import express from "express";
-import { AuthService } from "../services/auth.service.ts";
+import type { IAuthService } from "../services/auth.service.ts";
 
-const authService = new AuthService();
+export function createAuthController(authService: IAuthService) {
 
-export async function login(req: express.Request, res: express.Response) {
-  const body = req.body;
+  async function login(req: express.Request, res: express.Response) {
+    const body = req.body;
 
-  const result = await authService.login(
-    body.email,
-    body.password,
-  );
+    const result = await authService.login(
+      body.email,
+      body.password,
+    );
 
-  res.send_ok(result);
+    res.send_ok(result);
+  }
+
+  return {login}
 }
