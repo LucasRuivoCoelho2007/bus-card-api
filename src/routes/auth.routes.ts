@@ -1,7 +1,15 @@
-import express from 'express';
-import { login } from "../controllers/auth.controller.ts";
+import express from "express";
+
+import { UserRepository } from "../repositories/user.repository.ts";
+import { AuthService } from "../services/auth.service.ts";
+import { createAuthController } from "../controllers/auth.controller.ts";
 
 const router = express.Router();
-router.post("/auth/login", login);
+
+const userRepository = new UserRepository();
+const authService = new AuthService(userRepository);
+const authController = createAuthController(authService);
+
+router.post("/auth/login", authController.login);
 
 export default router;

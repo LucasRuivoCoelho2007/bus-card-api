@@ -1,13 +1,17 @@
 import { verifyPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
-import { UserRepository } from "../repositories/user.repository.ts";
+import type { IUserRepository } from "../repositories/user.repository.ts";
 import throwlhosModule from "npm:throwlhos";
 
-export class AuthService {
-  private repository: UserRepository;
+export interface IAuthService {
+  login(email: string, password: string): Promise<{ token: string }>;
+}
 
-  constructor() {
-    this.repository = new UserRepository();
+export class AuthService implements IAuthService {
+  private repository: IUserRepository;
+
+  constructor(repository: IUserRepository) {
+    this.repository = repository;
   }
 
   async login(email: string, password: string) {
