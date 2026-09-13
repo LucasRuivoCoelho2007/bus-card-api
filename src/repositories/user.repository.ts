@@ -2,7 +2,18 @@ import { UserModel } from "../models/user.ts";
 import type { IUser } from "../models/user.ts";
 import mongoose from "npm:mongoose";
 
-export class UserRepository {
+export interface IUserRepository {
+  create(user: IUser): Promise<IUser>;
+  findByEmail(email: string): Promise<IUser | null>;
+  findById(id: string): Promise<IUser | null>;
+  updateMe(
+    id: string,
+    name: string,
+    email: string,
+  ): Promise<IUser | null>;
+}
+
+export class UserRepository implements IUserRepository {
   create(user: IUser) {
     return UserModel.create(user);
   }

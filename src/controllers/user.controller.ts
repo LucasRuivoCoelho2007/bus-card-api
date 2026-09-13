@@ -4,106 +4,121 @@ import requestCheckModule from "npm:request-check";
 import isness from "@zarco/isness";
 import { email, name } from "@zarco/isness";
 
-const userService = new UserService();
 
-export async function createUser(req: express.Request, res: express.Response) {
-  const body = req.body;
+export function createUserController(userService: UserService) {
 
-  const rc = requestCheckModule.default();
+  async function createUser(req: express.Request, res: express.Response) {
+    const body = req.body;
 
-  rc.addRule("name", {
-    validator: (value) => name(value),
-    message: "Invalid name",
-  });
+    const rc = requestCheckModule.default();
 
-  rc.addRule("email", {
-    validator: (value) => isness.email(value),
-    message: "Invalid email",
-  });
+    rc.addRule("name", {
+      validator: (value: unknown) => typeof value === "string" && name(value),
+      message: "Invalid name",
+    });
 
-  rc.addRule("password", {
-    validator: (value) =>
-      typeof value === "string" && value.length >= 6,
-    message: "Password must have at least 6 characters",
-  });
+    rc.addRule("email", {
+      validator: (value: unknown) =>
+        typeof value === "string" && isness.email(value),
+      message: "Invalid email",
+    });
 
-  const errors = rc.check(
-    { name: body.name },
-    { email: body.email },
-    { password: body.password },
-  );
+    rc.addRule("password", {
+      validator: (value: unknown) =>
+        typeof value === "string" && value.length >= 6,
+      message: "Password must have at least 6 characters",
+    });
 
-  if (errors) {
-    res.send_badRequest("Invalid fields", errors);
-    return;
+    const errors = rc.check(
+      { name: body.name },
+      { email: body.email },
+      { password: body.password },
+    );
+
+    if (errors) {
+      res.send_badRequest("Invalid fields", errors);
+      return;
+    }
+
+    const user = await userService.create(
+      body.name,
+      body.email,
+      body.password,
+    );
+
+    res.send_created("User created successfully", {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  }
+  async function getMe(req: express.Request, res: express.Response) {
+    const userId = req.userId;
+
+    const user = await userService.findById(userId);
+
+    if (!user) {
+      res.send_notFound("User not found");
+      return;
+    }
+
+    res.send_ok({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
   }
 
-  const user = await userService.create(
-    body.name,
-    body.email,
-    body.password,
-  );
 
-  res.send_created("User created successfully", {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-  });
-}
-export async function getMe(req: express.Request, res: express.Response) {
-  const userId = req.userId;
+  async function updateMe(req: express.Request, res: express.Response) {
+    const userId = req.userId;
+    const body = req.body;
 
-  const user = await userService.findById(userId);
+    const rc = requestCheckModule.default();
 
-  if (!user) {
-    res.send_notFound("User not found");
-    return;
+
+    rc.addRule("name", {
+      validator: (value: unknown) => typeof value === "string" && name(value),
+      message: "Invalid name",
+    });
+
+    rc.addRule("email", {
+      validator: (value: unknown) =>
+        typeof value === "string" && isness.email(value),
+      message: "Invalid email",
+    });
+
+    const errors = rc.check(
+      { name: body.name },
+      { email: body.email },
+    );
+
+    if (errors) {
+      res.send_badRequest("Invalid fields", errors);
+      return;
+    }
+
+    const user = await userService.updateMe(
+      userId,
+      body.name,
+      body.email,
+    );
+    
+    if (!user) {
+      res.send_notFound("User not found");
+      return;
+    }
+
+    res.send_ok("User updated successfully", {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
   }
+    return {
+    createUser,
+    getMe,
+    updateMe,
+  };
 
-  res.send_ok({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-  });
-}
-
-
-export async function updateMe(req: express.Request, res: express.Response) {
-  const userId = req.userId;
-  const body = req.body;
-
-  const rc = requestCheckModule.default();
-
-  rc.addRule("name", {
-    validator: (value) =>
-      typeof value === "string" && value.trim().length >= 2,
-    message: "Name must have at least 2 characters",
-  });
-
-  rc.addRule("email", {
-    validator: (value) => isness.email(value),
-    message: "Invalid email",
-  });
-
-  const errors = rc.check(
-    { name: body.name },
-    { email: body.email },
-  );
-
-  if (errors) {
-    res.send_badRequest("Invalid fields", errors);
-    return;
-  }
-
-  const user = await userService.updateMe(
-    userId,
-    body.name,
-    body.email,
-  );
-
-  res.send_ok("User updated successfully", {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-  });
 }

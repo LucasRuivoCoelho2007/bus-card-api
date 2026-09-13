@@ -1,23 +1,29 @@
 import express from "express";
 
-import {createUser,getMe, updateMe} from "../controllers/user.controller.ts";
+import { UserRepository } from "../repositories/user.repository.ts";
+import { UserService } from "../services/user.service.ts";
+import { createUserController } from "../controllers/user.controller.ts";
 
 import { authMiddleware } from "../middlewares/auth.middleware.ts";
 
 const router = express.Router();
 
-router.post("/users", createUser);
+const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
+const userController = createUserController(userService);
+
+router.post("/users", userController.createUser);
 
 router.get(
   "/users/me",
   authMiddleware,
-  getMe,
+  userController.getMe,
 );
 
 router.put(
   "/users/me",
   authMiddleware,
-  updateMe,
+  userController.updateMe,
 );
 
 export default router;
