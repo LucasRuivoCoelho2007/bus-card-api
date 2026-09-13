@@ -18,7 +18,7 @@ export async function hashPassword(password: string): Promise<string> {
       passes: 3,
       parallelism: 4,
       nonce: salt,
-    },
+    } as Algorithm,
     key,
     256,
   );
@@ -49,16 +49,16 @@ export async function verifyPassword(
     );
 
     const hash = await crypto.subtle.deriveBits(
-      {
-        name: "Argon2id",
-        memory: 65536,
-        passes: 3,
-        parallelism: 4,
-        nonce: salt,
-      },
-      key,
-      256,
-    );
+    {
+      name: "Argon2id",
+      memory: 65536,
+      passes: 3,
+      parallelism: 4,
+      nonce: salt,
+    } as Algorithm,
+    key,
+    256,
+  );
 
     const actualHash = new Uint8Array(hash);
 

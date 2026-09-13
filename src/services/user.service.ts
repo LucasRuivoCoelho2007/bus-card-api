@@ -1,14 +1,15 @@
 import { hashPassword, verifyPassword } from "../utils/password.ts";
 import { User } from "../models/user.ts";
-import { UserRepository } from "../repositories/user.repository.ts";
+import type { IUserRepository } from "../repositories/user.repository.ts";
 import throwlhosModule from "npm:throwlhos";
 
 export class UserService {
-  private repository: UserRepository;
+  private repository: IUserRepository;
 
-  constructor() {
-    this.repository = new UserRepository();
+  constructor(repository: IUserRepository) {
+    this.repository = repository;
   }
+
 
   async create(name: string, email: string, password: string) {
     const passwordHash = await hashPassword(password);
