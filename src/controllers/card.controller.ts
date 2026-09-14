@@ -1,169 +1,199 @@
 import express from "express";
-import { CardService } from "../services/card.service.ts";
+
+import type { ICardService } from "../services/card.service.ts";
+
 import requestCheckModule from "npm:request-check";
 import { objectId } from "@zarco/isness";
 
-const cardService = new CardService();
+export function createCardController(cardService: ICardService) {
+  async function createCard(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const userId = req.userId;
+    const body = req.body;
 
-export async function createCard(req: express.Request, res: express.Response) {
-  const userId = req.userId;
-  const body = req.body;
+    const rc = requestCheckModule.default();
 
-  const rc = requestCheckModule.default();
+    rc.addRule("type", {
+      validator: (value: unknown) =>
+        value === "student" || value === "standard",
+      message: "Card type must be 'student' or 'standard'",
+    });
 
-  rc.addRule("type", {
-    validator: (value) =>
-      value === "student" || value === "standard",
-    message: "Card type must be 'student' or 'standard'",
-  });
+    const errors = rc.check({
+      type: req.body.type,
+    });
 
-  const errors = rc.check({
-    type: req.body.type,
-  });
+    if (errors) {
+      res.send_badRequest("Invalid fields", errors);
+      return;
+    }
 
-  if (errors) {
-    res.send_badRequest("Invalid fields", errors);
-    return;
+    const card = await cardService.create(
+      userId,
+      body.type,
+    );
+
+    res.send_created(card);
   }
 
-  const card = await cardService.create(
-    userId,
-    body.type,
-  );
+  async function getCards(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const userId = req.userId;
 
-  res.send_created(card);
-}
+    const cards = await cardService.getCards(userId);
 
-export async function getCards(req: express.Request, res: express.Response) {
-  const userId = req.userId;
-
-  const cards = await cardService.getCards(userId);
-
-  res.send_ok(cards);
-}
-
-export async function getCardById(req: express.Request, res: express.Response) {
-  const cardId = req.params.id;
-  const userId = req.userId;
-
-  if (!objectId(cardId)) {
-    res.send_badRequest("Invalid card ID");
-    return;
+    res.send_ok(cards);
   }
 
+  async function getCardById(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const cardId = req.params.id;
+    const userId = req.userId;
 
-  const card = await cardService.getCardById(
-    cardId,
-    userId,
-  );
+    if (!objectId(cardId)) {
+      res.send_badRequest("Invalid card ID");
+      return;
+    }
 
-  res.send_ok(card);
-}
+    const card = await cardService.getCardById(
+      cardId,
+      userId,
+    );
 
-export async function updateCard(req: express.Request, res: express.Response) {
-  const cardId = req.params.id;
-  const userId = req.userId;
-  const body = req.body;
-
-  const rc = requestCheckModule.default();
-
-  rc.addRule("type", {
-    validator: (value) =>
-      value === "student" || value === "standard",
-    message: "Card type must be 'student' or 'standard'",
-  });
-
-  const errors = rc.check({
-    type: body.type,
-  });
-
-  if (errors) {
-    res.send_badRequest("Invalid fields", errors);
-    return;
+    res.send_ok(card);
   }
 
-  if (!objectId(cardId)) {
-    res.send_badRequest("Invalid card ID");
-    return;
+  async function updateCard(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const cardId = req.params.id;
+    const userId = req.userId;
+    const body = req.body;
+
+    const rc = requestCheckModule.default();
+
+    rc.addRule("type", {
+      validator: (value: unknown) =>
+        value === "student" || value === "standard",
+      message: "Card type must be 'student' or 'standard'",
+    });
+
+    const errors = rc.check({
+      type: body.type,
+    });
+
+    if (errors) {
+      res.send_badRequest("Invalid fields", errors);
+      return;
+    }
+
+    if (!objectId(cardId)) {
+      res.send_badRequest("Invalid card ID");
+      return;
+    }
+
+    const card = await cardService.updateCard(
+      cardId,
+      userId,
+      body.type,
+    );
+
+    res.send_ok(card);
   }
 
+  async function deleteCard(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const cardId = req.params.id;
+    const userId = req.userId;
 
-  const card = await cardService.updateCard(
-    cardId,
-    userId,
-    body.type,
-  );
+    if (!objectId(cardId)) {
+      res.send_badRequest("Invalid card ID");
+      return;
+    }
 
-  res.send_ok(card);
-}
+    await cardService.deleteCard(
+      cardId,
+      userId,
+    );
 
-export async function deleteCard(req: express.Request, res: express.Response) {
-  const cardId = req.params.id;
-  const userId = req.userId;
-
-  if (!objectId(cardId)) {
-    res.send_badRequest("Invalid card ID");
-    return;
+    res.send_noContent();
   }
 
+  async function deposit(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const cardId = req.params.id;
+    const userId = req.userId;
+    const body = req.body;
 
-  await cardService.deleteCard(
-    cardId,
-    userId,
-  );
+    const rc = requestCheckModule.default();
 
-  res.send_noContent();
-}
+    rc.addRule("amount", {
+      validator: (value: unknown) =>
+        typeof value === "number" && value > 0,
+      message: "Amount must be greater than zero",
+    });
 
-export async function deposit(req: express.Request, res: express.Response) {
-  const cardId = req.params.id;
-  const userId = req.userId;
-  const body = req.body;
+    const errors = rc.check({
+      amount: body.amount,
+    });
 
-  const rc = requestCheckModule.default();
+    if (errors) {
+      res.send_badRequest("Invalid fields", errors);
+      return;
+    }
 
-  rc.addRule("amount", {
-    validator: (value) =>
-      typeof value === "number" && value > 0,
-    message: "Amount must be greater than zero",
-  });
+    await cardService.deposit(
+      cardId,
+      userId,
+      body.amount,
+    );
 
-  const errors = rc.check({
-    amount: body.amount,
-  });
-
-  if (errors) {
-    res.send_badRequest("Invalid fields", errors);
-    return;
+    res.send_ok({
+      message: "Deposit completed successfully",
+    });
   }
 
-  await cardService.deposit(
-    cardId,
-    userId,
-    body.amount,
-  );
+  async function charge(
+    req: express.Request,
+    res: express.Response,
+  ) {
+    const cardId = req.params.id;
+    const userId = req.userId;
 
-  res.send_ok({
-    message: "Deposit completed successfully",
-  });
-}
+    if (!objectId(cardId)) {
+      res.send_badRequest("Invalid card ID");
+      return;
+    }
 
-export async function charge(req: express.Request, res: express.Response) {
-  const cardId = req.params.id;
-  const userId = req.userId;
+    await cardService.charge(
+      cardId,
+      userId,
+    );
 
-  if (!objectId(cardId)) {
-    res.send_badRequest("Invalid card ID");
-    return;
+    res.send_ok({
+      message: "Charge completed successfully",
+    });
   }
 
-
-  await cardService.charge(
-    cardId,
-    userId,
-  );
-
-  res.send_ok({
-    message: "Charge completed successfully",
-  });
+  return {
+    createCard,
+    getCards,
+    getCardById,
+    updateCard,
+    deleteCard,
+    deposit,
+    charge,
+  };
 }
+
