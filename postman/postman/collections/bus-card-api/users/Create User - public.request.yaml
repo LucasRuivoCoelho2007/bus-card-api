@@ -1,0 +1,15 @@
+$kind: http-request
+url: http://localhost:8000/users
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \"name\": \"Lucas Ruivo Coe\",\r
+
+    \"email\": \"lucas@email.com\",\r
+
+    \"password\":\"123456\"\r
+
+    }"
+order: 1000
