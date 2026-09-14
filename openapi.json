@@ -1,0 +1,923 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Minha API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check da API"
+    },
+    {
+      "name": "Users",
+      "description": "Operações relacionadas aos usuários"
+    },
+    {
+      "name": "Auth",
+      "description": "Autenticação"
+    },
+    {
+      "name": "Cards",
+      "description": "Operações relacionadas aos cartões"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "lucas@email.com",
+            "description": "E-mail do usuário"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "123456",
+            "description": "Senha do usuário"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "example": "token-example",
+            "description": "Token JWT utilizado para autenticar requisições."
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "66e123456789abcdef123456"
+          },
+          "name": {
+            "type": "string",
+            "example": "Lucas"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "lucas@email.com"
+          }
+        }
+      },
+      "CreateUser": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Lucas",
+            "description": "Nome do usuário"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "lucas@email.com",
+            "description": "E-mail do usuário"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6,
+            "example": "123456",
+            "description": "Senha do usuário"
+          }
+        }
+      },
+      "UpdateUser": {
+        "type": "object",
+        "required": [
+          "name",
+          "email"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Lucas Silva",
+            "description": "Nome do usuário"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "lucas.silva@email.com",
+            "description": "E-mail do usuário"
+          }
+        }
+      },
+      "Card": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "665f1a2b3c4d5e6f78901234",
+            "description": "ID do cartão."
+          },
+          "user_id": {
+            "type": "string",
+            "example": "665f1a2b3c4d5e6f78905678",
+            "description": "ID do usuário proprietário do cartão."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "student",
+              "standard"
+            ],
+            "example": "student",
+            "description": "Tipo do cartão."
+          },
+          "balance": {
+            "type": "number",
+            "example": 25,
+            "description": "Saldo atual do cartão."
+          },
+          "last_transactions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "665f1a2b3c4d5e6f78901234",
+              "665f1a2b3c4d5e6f78905678"
+            ],
+            "description": "IDs das últimas transações do cartão."
+          }
+        }
+      },
+      "CreateCardRequest": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "student",
+              "standard"
+            ],
+            "example": "student",
+            "description": "Tipo do cartão."
+          }
+        }
+      },
+      "UpdateCardRequest": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "student",
+              "standard"
+            ],
+            "example": "standard",
+            "description": "Novo tipo do cartão."
+          }
+        }
+      },
+      "DepositRequest": {
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0.01,
+            "example": 50,
+            "description": "Valor a ser depositado. Deve ser maior que zero."
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Deposit completed successfully"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "665f1a2b3c4d5e6f78901234",
+            "description": "ID da transação."
+          },
+          "card_id": {
+            "type": "string",
+            "example": "665f1a2b3c4d5e6f78905678",
+            "description": "ID do cartão relacionado à transação."
+          },
+          "amount": {
+            "type": "number",
+            "example": 50,
+            "description": "Valor da transação. Depósitos possuem valor positivo e cobranças possuem valor negativo."
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-14T14:30:00.000Z",
+            "description": "Data e hora em que a transação foi realizada."
+          },
+          "status": {
+            "type": "string",
+            "example": "completed",
+            "description": "Status da transação."
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "Card": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "example": "665f1a2b3c4d5e6f78901234",
+          "description": "ID do cartão."
+        },
+        "user_id": {
+          "type": "string",
+          "example": "665f1a2b3c4d5e6f78905678",
+          "description": "ID do usuário proprietário do cartão."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "student",
+            "standard"
+          ],
+          "example": "student",
+          "description": "Tipo do cartão."
+        },
+        "balance": {
+          "type": "number",
+          "example": 25,
+          "description": "Saldo atual do cartão."
+        },
+        "last_transactions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "665f1a2b3c4d5e6f78901234",
+            "665f1a2b3c4d5e6f78905678"
+          ],
+          "description": "IDs das últimas transações do cartão."
+        }
+      }
+    },
+    "CreateCardRequest": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "student",
+            "standard"
+          ],
+          "example": "student",
+          "description": "Tipo do cartão."
+        }
+      }
+    },
+    "UpdateCardRequest": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "student",
+            "standard"
+          ],
+          "example": "standard",
+          "description": "Novo tipo do cartão."
+        }
+      }
+    },
+    "DepositRequest": {
+      "type": "object",
+      "required": [
+        "amount"
+      ],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0.01,
+          "example": 50,
+          "description": "Valor a ser depositado. Deve ser maior que zero."
+        }
+      }
+    },
+    "MessageResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Deposit completed successfully"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Realiza login",
+        "description": "Autentica o usuário utilizando e-mail e senha e retorna um token JWT.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "E-mail ou senha inválidos."
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Verifica a saúde da API",
+        "description": "Endpoint utilizado para verificar se a API está disponível.",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "API está funcionando corretamente."
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Cria um novo usuário",
+        "description": "Realiza o registro de um novo usuário.",
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Campos inválidos."
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Obtém o usuário autenticado",
+        "description": "Retorna os dados do usuário atualmente autenticado.",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do usuário.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente ou inválido."
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza o usuário autenticado",
+        "description": "Atualiza o nome e o e-mail do usuário autenticado.",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Campos inválidos."
+          },
+          "401": {
+            "description": "Token ausente ou inválido."
+          },
+          "404": {
+            "description": "Usuário não encontrado."
+          }
+        }
+      }
+    },
+    "/cards": {
+      "post": {
+        "summary": "Cria um cartão",
+        "description": "Cria um novo cartão para o usuário autenticado.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cartão criado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Tipo de cartão inválido."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          }
+        }
+      },
+      "get": {
+        "summary": "Lista os cartões do usuário",
+        "description": "Retorna todos os cartões pertencentes ao usuário autenticado.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de cartões.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Card"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          }
+        }
+      }
+    },
+    "/cards/{id}": {
+      "get": {
+        "summary": "Obtém um cartão",
+        "description": "Retorna os dados de um cartão pertencente ao usuário autenticado.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cartão.",
+            "schema": {
+              "type": "string",
+              "example": "665f1a2b3c4d5e6f78901234"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cartão encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID do cartão inválido."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Cartão não encontrado."
+          }
+        }
+      },
+      "put": {
+        "summary": "Atualiza um cartão",
+        "description": "Atualiza o tipo de um cartão pertencente ao usuário autenticado.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cartão.",
+            "schema": {
+              "type": "string",
+              "example": "665f1a2b3c4d5e6f78901234"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cartão atualizado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID ou tipo de cartão inválido."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Cartão não encontrado."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Exclui um cartão",
+        "description": "Exclui um cartão pertencente ao usuário autenticado.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cartão.",
+            "schema": {
+              "type": "string",
+              "example": "665f1a2b3c4d5e6f78901234"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Cartão excluído com sucesso."
+          },
+          "400": {
+            "description": "ID do cartão inválido."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Cartão não encontrado."
+          }
+        }
+      }
+    },
+    "/cards/{id}/deposit": {
+      "post": {
+        "summary": "Recarrega o saldo do cartão",
+        "description": "Adiciona um valor positivo ao saldo do cartão e registra uma transação.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cartão.",
+            "schema": {
+              "type": "string",
+              "example": "665f1a2b3c4d5e6f78901234"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DepositRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Depósito realizado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Valor de depósito inválido."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Cartão não encontrado."
+          }
+        }
+      }
+    },
+    "/cards/{id}/charge": {
+      "post": {
+        "summary": "Realiza uma cobrança no cartão",
+        "description": "Realiza uma cobrança de R$ 5,00 no cartão e registra uma transação.",
+        "tags": [
+          "Cards"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do cartão.",
+            "schema": {
+              "type": "string",
+              "example": "665f1a2b3c4d5e6f78901234"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cobrança realizada com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Saldo insuficiente."
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Cartão não encontrado."
+          }
+        }
+      }
+    },
+    "/transactions": {
+      "get": {
+        "summary": "Lista as transações do usuário",
+        "description": "Retorna todas as transações pertencentes aos cartões do usuário autenticado.",
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de transações.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transaction"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Nenhuma transação encontrada para este usuário."
+          }
+        }
+      }
+    },
+    "/transactions/card/{cardId}": {
+      "get": {
+        "summary": "Lista as transações de um cartão",
+        "description": "Retorna as transações de um cartão pertencente ao usuário autenticado.",
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cardId",
+            "in": "path",
+            "required": true,
+            "description": "ID do cartão.",
+            "schema": {
+              "type": "string",
+              "example": "665f1a2b3c4d5e6f78905678"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de transações do cartão.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transaction"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Usuário não autenticado."
+          },
+          "404": {
+            "description": "Nenhuma transação encontrada para este cartão."
+          }
+        }
+      }
+    }
+  }
+}

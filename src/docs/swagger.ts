@@ -57,7 +57,7 @@ export const swaggerSpec = {
             properties: {
                 token: {
                 type: "string",
-                example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                example: "token-example",
                 description: "Token JWT utilizado para autenticar requisições.",
                 },
             },
