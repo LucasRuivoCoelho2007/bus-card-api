@@ -20,11 +20,11 @@ API REST para gerenciamento de cartões de transporte, usuários e transações.
 - Variáveis de ambiente configuradas
 
 Caso precise instalar o deno, execute: 
-macOS e Linux:
+#### macOS e Linux:
 ```bash
  curl -fsSL https://deno.land/install.sh | sh
  ```
-Windows (PowerShell): 
+#### Windows (PowerShell): 
 ```bash
 irm https://deno.land/install.ps1 | iex
 ```
