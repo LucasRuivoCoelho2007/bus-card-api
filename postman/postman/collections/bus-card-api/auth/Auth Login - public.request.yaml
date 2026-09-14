@@ -1,0 +1,27 @@
+$kind: http-request
+url: http://localhost:8000/auth/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"email\": \"lucas@email.com\",\r
+
+    \    \"password\":\"123456\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: |
+      const response = pm.response.json();
+
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Token is present and stored in environment", function () {
+          pm.expect(response.message.token).to.be.a('string');
+          pm.environment.set("token", response.message.token);
+      });
+    language: text/javascript
+order: 1000

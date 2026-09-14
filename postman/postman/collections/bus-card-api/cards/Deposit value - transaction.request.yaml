@@ -1,0 +1,13 @@
+$kind: http-request
+url: http://localhost:8000/cards/:id/deposit
+method: POST
+pathVariables:
+  id: ""
+body:
+  type: json
+  content: "{\r\n  \"amount\": 50\r\n}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 6000
