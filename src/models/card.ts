@@ -1,14 +1,12 @@
 import mongoose from "npm:mongoose";
-import type { ITransaction } from "./transaction.ts";
 
 export interface ICard {
   _id: mongoose.Types.ObjectId;
   user_id: mongoose.Types.ObjectId;
   type: string;
   balance: number;
-  last_transactions: ITransaction[];
+  last_transactions: mongoose.Types.ObjectId[];
 }
-
 export class Card implements ICard {
   _id: ICard["_id"];
   user_id: ICard["user_id"];

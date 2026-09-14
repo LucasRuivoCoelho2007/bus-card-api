@@ -5,7 +5,42 @@ import { TransactionRepository } from "../repositories/transaction.repository.ts
 import { Transaction } from "../models/transaction.ts";
 import throwlhosModule from "npm:throwlhos";
 
-export class CardService {
+
+export interface ICardService {
+  create(userId: string, type: string): Promise<unknown>;
+
+  getCards(userId: string): Promise<unknown>;
+
+  getCardById(
+    cardId: string,
+    userId: string,
+  ): Promise<unknown>;
+
+  updateCard(
+    cardId: string,
+    userId: string,
+    type: string,
+  ): Promise<unknown>;
+
+  deleteCard(
+    cardId: string,
+    userId: string,
+  ): Promise<unknown>;
+
+  deposit(
+    cardId: string,
+    userId: string,
+    amount: number,
+  ): Promise<unknown>;
+
+  charge(
+    cardId: string,
+    userId: string,
+  ): Promise<unknown>;
+}
+
+export class CardService implements ICardService {
+
   private repository: CardRepository;
   private transactionRepository: TransactionRepository;
 
