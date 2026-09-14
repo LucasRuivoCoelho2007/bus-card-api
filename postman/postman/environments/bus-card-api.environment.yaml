@@ -1,6 +1,0 @@
-name: bus-card-api
-color: 180
-values:
-  - key: token
-    value: ""
-    enabled: true
