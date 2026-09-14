@@ -1,5 +1,6 @@
 import express from "express";
 import { verifyToken } from "../utils/jwt.ts";
+import throwlhosModule from "npm:throwlhos";
 
 export async function authMiddleware(
   req: express.Request,
@@ -9,19 +10,17 @@ export async function authMiddleware(
   const authorization = req.headers.authorization;
 
   if (!authorization) {
-    res.status(401).json({
-      error: "Authorization header required",
-    });
-    return;
+    throw throwlhosModule.default.err_unauthorized(
+      "Authorization header required",
+    );
   }
 
   const [scheme, token] = authorization.split(" ");
 
   if (scheme !== "Bearer" || !token) {
-    res.status(401).json({
-      error: "Bearer token required",
-    });
-    return;
+    throw throwlhosModule.default.err_unauthorized(
+      "Bearer token required",
+    );
   }
 
   try {
@@ -31,8 +30,8 @@ export async function authMiddleware(
 
     next();
   } catch {
-    res.status(401).json({
-      error: "Invalid or expired token",
-    });
+    throw throwlhosModule.default.err_unauthorized(
+      "Invalid or expired token",
+    );
   }
 }
