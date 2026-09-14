@@ -1,7 +1,0 @@
-workspace:
-  id: 3347773c-d4fb-405d-82a5-b00d15a2f037
-cloudResources:
-  collections:
-    ../postman/collections/bus-card-api: 53276811-d53f08cd-39bf-4c2c-942d-d94b03816fc0
-  environments:
-    ../postman/environments/bus-card-api.environment.yaml: 53276811-7ca6e477-b038-4d42-b6ed-886251d8dcd7

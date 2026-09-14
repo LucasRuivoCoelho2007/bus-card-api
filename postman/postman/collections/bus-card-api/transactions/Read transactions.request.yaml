@@ -1,8 +1,0 @@
-$kind: http-request
-url: http://localhost:8000/transactions
-method: GET
-auth:
-  type: bearer
-  credentials:
-    token: "{{token}}"
-order: 1000
